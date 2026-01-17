@@ -2,18 +2,45 @@
 
 A comprehensive WiFi and Bluetooth scanner for ESP32 that detects and identifies nearby wireless devices including vehicles, cameras, smartphones, and other IoT devices. Built for situational awareness and educational purposes.
 
+**NEW:** Live Distance Tracking with real-time movement detection and approaching/receding alerts!
+
+## Available Versions
+
+This project includes 4 versions to suit different needs:
+
+1. **Basic Scanner** (`examples/basic_scanner.ino`) - Simple WiFi/BLE scanner for learning
+2. **Standard Tracker** (`vehicle_tracker.ino`) - Device identification without alerts
+3. **Enhanced Tracker** (`vehicle_tracker_enhanced.ino`) - Full features with LED/buzzer alerts ⭐ **Recommended**
+4. **Live Distance** (`vehicle_tracker_live_distance.ino`) - Real-time distance tracking with movement detection 🎯 **NEW**
+
+See [VERSION_COMPARISON.md](VERSION_COMPARISON.md) for detailed comparison and which to choose.
+
 ## Features
 
+### All Versions
 - **Dual-Mode Scanning**: WiFi (2.4GHz) and Bluetooth/BLE scanning
 - **Device Identification**: Automatically identifies device types based on:
   - MAC address vendor lookup (OUI database)
   - Device names and SSIDs
   - Bluetooth broadcast characteristics
 - **Signal Analysis**: RSSI monitoring and distance estimation
+
+### Enhanced & Live Distance Versions
 - **Visual Alerts**: LED indicators for specific device types
-- **Audio Alerts**: Optional buzzer support for important detections
+- **Audio Alerts**: Optional buzzer support with distance-aware patterns
 - **Device Tracking**: Historical tracking with first seen/last seen timestamps
 - **Comprehensive Logging**: Serial output with detailed device information
+
+### Live Distance Version Only 🎯
+- **Real-Time Distance Tracking**: Device-specific calibration for ±5-10m accuracy
+- **Movement Detection**: Know if devices are approaching or receding
+- **Velocity Calculation**: See how fast devices are moving (m/s)
+- **Distance Prediction**: Estimate where devices will be in 5-10 seconds
+- **Live Updates**: Distance refreshes every 5 seconds
+- **Proximity Alerts**: Different alert patterns based on distance (< 2m, < 5m, < 10m)
+- **Trend Analysis**: Track closest/farthest distances and movement patterns
+
+See [DISTANCE_ANALYSIS.md](DISTANCE_ANALYSIS.md) for detailed information on the Live Distance tracking system.
 
 ## Detected Device Types
 
@@ -388,6 +415,7 @@ For issues, questions, or contributions:
 
 ## Version History
 
+- **v3.0** - Live Distance Tracker with real-time movement detection, velocity calculation, and distance prediction
 - **v2.0** - Enhanced version with alerts, vendor lookup, device tracking
 - **v1.0** - Basic WiFi and BLE scanning
 
