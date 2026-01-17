@@ -22,16 +22,22 @@ struct TxPowerProfile {
 const TxPowerProfile txPowerProfiles[] = {
   // High-power devices
   {"CAMERA", -50, 2.5},              // IP cameras often have strong WiFi
+  {"ALPR", -48, 2.5},                // License plate readers (high power)
   {"ROUTER", -45, 2.7},              // Routers have highest power
+  {"NETWORK", -45, 2.7},             // Network infrastructure
   {"MOBILE_HOTSPOT", -50, 2.5},      // Mobile hotspots
   {"TRAFFIC_MONITOR", -48, 2.6},     // Traffic systems
+  {"MESH_NETWORK", -47, 2.6},        // Tactical mesh networks
 
   // Medium-power devices
   {"EMERGENCY_VEHICLE", -55, 2.8},   // Vehicle systems
+  {"EMERGENCY_EQUIPMENT", -54, 2.8}, // Emergency lights/sirens
   {"VEHICLE", -58, 2.9},             // Car Bluetooth
   {"MDT_COMPUTER", -52, 2.7},        // Mobile Data Terminals
   {"COMPUTER", -55, 2.8},            // Laptops
   {"DASHCAM", -57, 2.8},             // Dash cameras
+  {"MUNICIPAL", -55, 2.8},           // Municipal vehicles/equipment
+  {"RADIO", -56, 2.9},               // Public safety radios
 
   // Low-power devices (BLE)
   {"SMARTPHONE", -59, 3.0},          // Phones (BLE)
