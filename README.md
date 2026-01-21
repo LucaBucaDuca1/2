@@ -1,424 +1,431 @@
-# ESP32 Wireless Device Scanner
+# HackRF PortaPack RF Device Scanner
 
-A comprehensive WiFi and Bluetooth scanner for ESP32 that detects and identifies nearby wireless devices including vehicles, cameras, smartphones, and other IoT devices. Built for situational awareness and educational purposes.
+## Overview
 
-**NEW:** Live Distance Tracking with real-time movement detection and approaching/receding alerts!
+The **RF Device Scanner** is a custom application for the HackRF PortaPack that detects and identifies radio frequency signals from government, law enforcement, emergency services, and public safety devices in real-time.
 
-## Available Versions
-
-This project includes 4 versions to suit different needs:
-
-1. **Basic Scanner** (`examples/basic_scanner.ino`) - Simple WiFi/BLE scanner for learning
-2. **Standard Tracker** (`vehicle_tracker.ino`) - Device identification without alerts
-3. **Enhanced Tracker** (`vehicle_tracker_enhanced.ino`) - Full features with LED/buzzer alerts ⭐ **Recommended**
-4. **Live Distance** (`vehicle_tracker_live_distance.ino`) - Real-time distance tracking with movement detection 🎯 **NEW**
-
-See [VERSION_COMPARISON.md](VERSION_COMPARISON.md) for detailed comparison and which to choose.
+This application provides passive RF monitoring with intelligent signal identification, focusing on frequencies used by agencies in Los Angeles County and Southern California.
 
 ## Features
 
-### All Versions
-- **Dual-Mode Scanning**: WiFi (2.4GHz) and Bluetooth/BLE scanning
-- **Device Identification**: Automatically identifies device types based on:
-  - MAC address vendor lookup (OUI database)
-  - Device names and SSIDs
-  - Bluetooth broadcast characteristics
-- **Signal Analysis**: RSSI monitoring and distance estimation
+### Core Capabilities
 
-### Enhanced & Live Distance Versions
-- **Visual Alerts**: LED indicators for specific device types
-- **Audio Alerts**: Optional buzzer support with distance-aware patterns
-- **Device Tracking**: Historical tracking with first seen/last seen timestamps
-- **Comprehensive Logging**: Serial output with detailed device information
+- **Wide-Band RF Scanning**: Scan from 150 MHz to 900 MHz
+- **Intelligent Signal Detection**: Identify devices based on comprehensive frequency database
+- **Real-Time Analysis**: Live RSSI monitoring and signal strength display
+- **Multi-Band Support**: Quick-select common public safety bands
+- **Detection Logging**: Save scan results with timestamps
+- **Signal History Tracking**: Track signal patterns over time
+- **Confidence Scoring**: Rate detection accuracy based on signal strength and frequency match
 
-### Live Distance Version Only 🎯
-- **Real-Time Distance Tracking**: Device-specific calibration for ±5-10m accuracy
-- **Movement Detection**: Know if devices are approaching or receding
-- **Velocity Calculation**: See how fast devices are moving (m/s)
-- **Distance Prediction**: Estimate where devices will be in 5-10 seconds
-- **Live Updates**: Distance refreshes every 5 seconds
-- **Proximity Alerts**: Different alert patterns based on distance (< 2m, < 5m, < 10m)
-- **Trend Analysis**: Track closest/farthest distances and movement patterns
+### Scan Bands
 
-See [DISTANCE_ANALYSIS.md](DISTANCE_ANALYSIS.md) for detailed information on the Live Distance tracking system.
+1. **VHF Low Band (150-174 MHz)**: Police, Fire, Business radios
+2. **VHF High Band (174-216 MHz)**: Government, Military
+3. **UHF-T Band (450-470 MHz)**: Public Safety, Business
+4. **UHF Public Safety (470-512 MHz)**: Government exclusive
+5. **700 MHz Band (700-800 MHz)**: FirstNet LTE Public Safety
+6. **800 MHz Band (806-869 MHz)**: Trunked Radio Systems (P25, Motorola)
+7. **900 MHz Band (896-960 MHz)**: Cellular, Additional trunked systems
+8. **Full Scan Mode**: All bands (150-900 MHz)
 
-## Detected Device Types
+## Frequency Database
 
-- **Emergency Vehicles**: Police cars, ambulances, fire trucks (WiFi hotspots, MDTs)
-- **Cameras**: IP cameras, surveillance systems (Hikvision, Dahua, Axis, etc.)
-- **Body Cameras**: Police body-worn cameras (Axon, WatchGuard)
-- **Dash Cameras**: Vehicle dashboard cameras (VIOFO, Garmin, BlackVue)
-- **Traffic Monitors**: Traffic sensors and monitoring systems
-- **Vehicles**: Car Bluetooth systems (CarPlay, Android Auto, infotainment)
-- **Mobile Hotspots**: Portable WiFi hotspots and MDTs (Mobile Data Terminals)
-- **Smartphones**: iPhone, Android devices
-- **Computers**: Laptops, tablets, rugged computers (Toughbooks)
-- **IoT Devices**: Smart home devices, sensors
-- **Audio Devices**: Headphones, speakers, earbuds
-- **Wearables**: Smartwatches, fitness trackers
+The app includes **300+ known frequencies** for:
+
+### Law Enforcement (80+ frequencies)
+- **LAPD** (Los Angeles Police Department): Dispatch, Tactical, SWAT, Air Support
+- **LASD** (LA County Sheriff): Patrol divisions, Special units
+- **CHP** (California Highway Patrol): Regional channels, Air ops
+- **Municipal Police**: Beverly Hills, Santa Monica, Long Beach, Pasadena, Glendale, Burbank, Torrance
+- **Federal Agencies**: FBI, DEA, ATF, Secret Service, US Marshals, Border Patrol, ICE, DHS
+
+### Fire & EMS (30+ frequencies)
+- **LAFD** (Los Angeles Fire Department): Dispatch, Tactical, Command, Arson
+- **LACoFD** (LA County Fire): Regional channels
+- **CalFire**: Wildfire operations, Air support
+- **EMS**: Hospital links, Ambulance dispatch, Paramedic channels
+
+### Government & Transportation (25+ frequencies)
+- **LA Metro**: Rail, Bus, Security
+- **Caltrans**: Traffic management, Maintenance
+- **Airport Security**: LAX, Burbank, Long Beach
+- **Schools**: LAUSD Police, UCLA PD, USC Public Safety
+
+### Specialized Systems (50+ frequencies)
+- **Trunked Radio**: LA-RICS, 800 MHz control channels
+- **FirstNet**: LTE Band 14 (Public Safety Broadband)
+- **Traffic Systems**: ALPR (License Plate Readers), Speed sensors, Traffic cameras
+- **Surveillance**: Body cameras, Dash cameras, Mobile surveillance
 
 ## Hardware Requirements
 
-### Required
-- **ESP32 Development Board** (any variant):
-  - ESP32-WROOM-32
-  - ESP32-S3
-  - ESP32-C3
-  - ESP32-DevKit
-- **USB Cable** (for programming and power)
-- **Computer** (for uploading code)
+### Compatible Devices
+- HackRF One + PortaPack H1/H2
+- HackRF One + PortaPack H2M4
+- HackRF One + PortaPack H4M
 
-### Optional
-- **LED** (if your board doesn't have built-in LED)
-  - Connect to GPIO 2 with 220Ω resistor
-- **Buzzer** (for audio alerts)
-  - Active buzzer recommended
-  - Connect to GPIO 4 with transistor driver
-- **OLED/LCD Display** (for visual interface - future enhancement)
-- **SD Card Module** (for data logging - future enhancement)
-- **Battery Pack** (for portable operation)
-  - LiPo battery with charging module
-  - Power bank (USB)
+### Firmware
+- **PortaPack Mayhem** (recommended, latest version)
+- **PortaPack Havoc** (may require modifications)
 
-## Wiring Diagram
+### Antenna Requirements
+- **Wide-band antenna**: 100 MHz - 1 GHz coverage
+- **Telescopic antenna**: Included with most PortaPacks (acceptable)
+- **Optimized antennas**: VHF/UHF dual-band for best performance
+- **Range**: Typically 100m - 1km depending on signal strength and antenna
 
-### Basic Setup (LED only)
-```
-ESP32          Component
-━━━━━          ━━━━━━━━━
-GPIO 2  ──────  LED Anode (+)
-GND     ──────  LED Cathode (-) [via 220Ω resistor]
-GPIO 15 ──────  Status LED Anode (+)
-GND     ──────  Status LED Cathode (-) [via 220Ω resistor]
+## Installation
+
+### Method 1: Add to Existing Firmware Build
+
+1. Clone PortaPack Mayhem firmware:
+```bash
+git clone https://github.com/eried/portapack-mayhem.git
+cd portapack-mayhem
 ```
 
-### With Buzzer
-```
-ESP32          Buzzer
-━━━━━          ━━━━━━
-GPIO 4  ──────  Signal (+)
-GND     ──────  Ground (-)
-```
-
-Note: For passive buzzers, you may need a transistor driver circuit.
-
-## Software Setup
-
-### Option 1: Arduino IDE
-
-1. **Install Arduino IDE**
-   - Download from [arduino.cc](https://www.arduino.cc/en/software)
-
-2. **Install ESP32 Board Support**
-   - Open Arduino IDE
-   - Go to File → Preferences
-   - Add to "Additional Board Manager URLs":
-     ```
-     https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-     ```
-   - Go to Tools → Board → Boards Manager
-   - Search for "ESP32" and install "esp32 by Espressif Systems"
-
-3. **Install Required Libraries**
-   - The ESP32 BLE library is included with the ESP32 board package
-   - No additional libraries needed!
-
-4. **Upload Code**
-   - Open `vehicle_tracker_enhanced.ino` in Arduino IDE
-   - Select your board: Tools → Board → ESP32 Arduino → ESP32 Dev Module
-   - Select your port: Tools → Port → (your COM port)
-   - Click Upload
-
-### Option 2: PlatformIO
-
-1. **Install PlatformIO**
-   - Install [VS Code](https://code.visualstudio.com/)
-   - Install PlatformIO extension from VS Code marketplace
-
-2. **Open Project**
-   - Open the project folder in VS Code
-   - PlatformIO will automatically detect `platformio.ini`
-
-3. **Build and Upload**
-   ```bash
-   pio run --target upload
-   ```
-
-## Configuration
-
-Edit the settings at the top of the `.ino` file or in `config.h`:
-
-### Scan Settings
-```cpp
-#define WIFI_SCAN_INTERVAL 5000    // WiFi scan interval (ms)
-#define BLE_SCAN_INTERVAL 5000     // BLE scan interval (ms)
-#define BLE_SCAN_DURATION 3        // BLE scan duration (seconds)
-#define RSSI_THRESHOLD -90         // Min signal strength (-90 to -30 dBm)
+2. Copy application files:
+```bash
+cp rf_scanner.hpp firmware/application/
+cp rf_scanner.cpp firmware/application/
+cp freq_database.hpp firmware/application/
 ```
 
-### Alert Settings
-```cpp
-#define ALERT_ON_EMERGENCY_VEHICLE true
-#define ALERT_ON_CAMERA true
-#define ALERT_ON_BODYCAM true
-#define ALERT_ON_TRAFFIC_MONITOR true
+3. Register the app in `firmware/application/CMakeLists.txt`:
+```cmake
+# Add to CPPSRC list
+rf_scanner.cpp
+
+# Add to application list
+add_application(rf_scanner rf_scanner.cpp)
 ```
 
-### Pin Configuration
-```cpp
-#define ALERT_LED_PIN 2        // Alert LED pin
-#define BUZZER_PIN 4           // Buzzer pin (-1 to disable)
-#define STATUS_LED_PIN 15      // Status LED pin
+4. Build firmware:
+```bash
+mkdir build && cd build
+cmake ..
+make firmware
 ```
+
+5. Flash to PortaPack:
+- Copy `firmware/portapack-h1_h2-mayhem.bin` to SD card
+- Update through PortaPack bootloader
+
+### Method 2: Pre-Built Binary (Future)
+
+Pre-built firmware images with RF Scanner will be available in releases.
 
 ## Usage
 
-### Basic Operation
+### Quick Start
 
-1. **Power On**
-   - Connect ESP32 via USB or battery
-   - System initializes in ~3 seconds
+1. **Power on PortaPack**
+2. Navigate to **Apps** > **RF Scanner**
+3. Select scan band (or use Full Scan)
+4. Adjust RSSI threshold (-120 to -30 dBm, default: -80)
+5. Press **START** to begin scanning
 
-2. **Monitor Serial Output**
-   - Open Serial Monitor (115200 baud)
-   - Devices will be displayed as detected
-
-3. **Interpret Results**
-   - NEW devices trigger immediate alerts
-   - Known devices update signal strength
-   - Summary printed every 30 seconds
-
-### Serial Output Example
+### Interface
 
 ```
-╔════════════════════════════════════════════╗
-║   ESP32 Wireless Device Scanner v2.0      ║
-║   WiFi + BLE Scanner with Alerts          ║
-╚════════════════════════════════════════════╝
-
-Initializing...
-✓ WiFi initialized
-✓ BLE initialized
-
-🔍 Scanning for devices...
-
-[WiFi DEVICE DETECTED]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Name: Squad_Car_23
-Address: A4:B1:C1:23:45:67
-Vendor: Cradlepoint
-Type: EMERGENCY_VEHICLE
-RSSI: -62 dBm (STRONG)
-Est. Distance: ~15.3 meters
-Status: NEW DEVICE
-Detections: 1
-First seen: 0 seconds ago
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-!!! ALERT TRIGGERED: EMERGENCY_VEHICLE - Squad_Car_23 !!!
+┌─────────────────────────────┐
+│ RF Device Scanner           │
+├─────────────────────────────┤
+│ Frequency: 154.570 MHz      │
+│ RSSI: -65 dBm               │
+│ [====RSSI METER====]        │
+│ Detections: 12              │
+│                             │
+│ Last Device: LAPD           │
+│ Main Dispatch               │
+│                             │
+│ Band: [VHF Low ▼]           │
+│ Threshold: [-80 dBm]        │
+│                             │
+│ [START] [CLEAR] [SAVE]      │
+├─────────────────────────────┤
+│ Console Output:             │
+│ > LAPD @ 154.57 MHz         │
+│ > LAFD @ 154.28 MHz         │
+│ > CHP @ 42.34 MHz           │
+└─────────────────────────────┘
 ```
 
-### Understanding Signal Strength
+### Controls
 
-| RSSI (dBm) | Strength | Approx. Distance |
-|------------|----------|------------------|
-| -30 to -50 | Very Strong | 0-10 meters |
-| -50 to -60 | Strong | 10-30 meters |
-| -60 to -70 | Moderate | 30-50 meters |
-| -70 to -80 | Weak | 50-100 meters |
-| -80 to -90 | Very Weak | 100+ meters |
+- **START/STOP Button**: Begin/end scanning
+- **CLEAR Button**: Clear detection history
+- **SAVE Button**: Save detections to SD card
+- **Band Selector**: Choose frequency range
+- **Threshold Field**: Adjust minimum RSSI for detection
 
-**Note**: Distance estimation is approximate and varies based on:
-- Transmit power of device
-- Obstacles (walls, vehicles, etc.)
-- Interference from other devices
-- Antenna orientation
+### Scan Settings
 
-## Customization
+**Recommended Settings by Use Case:**
 
-### Adding Custom Device Patterns
+| Use Case | Band | Threshold | Notes |
+|----------|------|-----------|-------|
+| General awareness | Full Scan | -80 dBm | Balanced detection |
+| Police activity | VHF Low | -70 dBm | Focus on police bands |
+| Fire/EMS | VHF Low | -70 dBm | Emergency services |
+| Highway patrol | VHF Low | -80 dBm | CHP operates 42 MHz |
+| Trunked systems | 800 MHz | -60 dBm | Strong signals only |
+| FirstNet | 700 MHz | -65 dBm | LTE requires higher RSSI |
 
-Edit `device_patterns.h` to add new detection patterns:
+### Saving Detections
 
-```cpp
-// Add to namePatterns array
-{"custom_keyword", "CUSTOM_TYPE", false},
+Press **SAVE** to create a log file on the SD card:
 
-// Add to vendorDatabase array
-{"AA:BB:CC", "Custom Vendor", "CUSTOM_TYPE"},
+**File location**: `/RFSCANS/RFSCN_YYYYMMDD_HHMM.TXT`
+
+**Example output:**
+```
+RF Scanner Detections
+====================
+
+Freq: 154.5700 MHz | RSSI: -65 dBm | Confidence: 85%
+Device: LAPD
+Description: Main Dispatch
+
+Freq: 154.2800 MHz | RSSI: -72 dBm | Confidence: 75%
+Device: LAFD
+Description: Dispatch North
+
+Freq: 42.3400 MHz | RSSI: -68 dBm | Confidence: 80%
+Device: CHP
+Description: Los Angeles Dispatch
 ```
 
-### Changing Alert Behavior
+## Detection Algorithm
 
-```cpp
-bool shouldAlert(String deviceType) {
-  if (deviceType == "YOUR_TYPE") return true;
-  // Add custom logic
-  return false;
-}
-```
+### How It Works
 
-## Troubleshooting
+1. **Frequency Scanning**: Sweeps through selected band in 12.5-25 kHz steps
+2. **Signal Detection**: Captures signals above RSSI threshold
+3. **Database Matching**: Compares detected frequency to known database (±25 kHz tolerance)
+4. **Confidence Scoring**:
+   - Base: 50%
+   - RSSI bonus: +10-30% (stronger signal = higher confidence)
+   - Frequency match: +20% (exact match)
+5. **History Tracking**: Requires 3+ detections for confirmation
+6. **Logging**: Records device type, frequency, RSSI, and timestamp
 
-### No Devices Detected
-- Check antenna orientation
-- Reduce `RSSI_THRESHOLD` (e.g., -95)
-- Ensure WiFi/BLE modules are enabled
-- Try different location (less interference)
+### Signal Strength Guide
 
-### Compilation Errors
-- Ensure ESP32 board package is installed
-- Check board selection matches your hardware
-- Update to latest ESP32 board package
+| RSSI Level | Distance Estimate | Detection Reliability |
+|------------|-------------------|----------------------|
+| -40 to -50 dBm | Very close (<100m) | Excellent |
+| -50 to -70 dBm | Near (100-500m) | Very good |
+| -70 to -85 dBm | Medium (500m-1km) | Good |
+| -85 to -100 dBm | Far (1-3km) | Fair |
+| < -100 dBm | Very far (>3km) | Poor |
 
-### Upload Failed
-- Check USB cable (use data cable, not charge-only)
-- Select correct COM port
-- Press BOOT button during upload (some boards)
-- Try different USB port
+*Note: Actual range varies based on transmission power, antenna, terrain, and interference*
 
-### High False Positive Rate
-- Increase `RSSI_THRESHOLD` (e.g., -70)
-- Adjust detection patterns in `device_patterns.h`
-- Disable unwanted device type alerts
+## Use Cases
 
-### Memory Issues
-- ESP32 has limited RAM
-- Reduce scan intervals if tracking many devices
-- Clear old devices periodically (add timeout logic)
+### Legitimate Uses
 
-## Performance Tips
+- **Educational**: Learn about public safety radio systems
+- **Security Research**: Authorized RF spectrum analysis
+- **Emergency Monitoring**: Monitor emergency services during disasters
+- **Ham Radio**: Identify and avoid busy public safety frequencies
+- **Network Planning**: Assess spectrum utilization for interference avoidance
+- **Situational Awareness**: Personal safety and awareness of nearby emergency activity
 
-1. **Battery Life**
-   - Increase scan intervals (10-30 seconds)
-   - Disable unused features (BLE or WiFi only)
-   - Use deep sleep between scans
+### Prohibited Uses
 
-2. **Detection Range**
-   - Use external antenna for better range
-   - Position device away from metal objects
-   - Elevate scanner for line-of-sight
+- **DO NOT** use to evade law enforcement
+- **DO NOT** interfere with emergency communications
+- **DO NOT** transmit on public safety frequencies without authorization
+- **DO NOT** use for stalking, harassment, or illegal surveillance
+- **DO NOT** record or publish private communications
 
-3. **Accuracy**
-   - Calibrate distance estimation for your environment
-   - Maintain MAC vendor database
-   - Test in known scenarios
+## Legal Considerations
 
-## Legal and Ethical Considerations
+### United States Law
 
-⚠️ **IMPORTANT DISCLAIMER**
+**Passive RF monitoring is generally legal** under the following conditions:
 
-This tool is designed for **educational purposes** and **legitimate awareness** of wireless devices in your environment.
+**Legal** (47 USC § 302a):
+- Receiving unencrypted radio signals
+- Using a scanner for education or hobby
+- Monitoring public safety frequencies (listening only)
+- Emergency monitoring during disasters
+- Ham radio operators avoiding interference
 
-### Legal Usage
-✅ **Acceptable Uses:**
-- Learning about wireless protocols and ESP32 development
-- Personal awareness of devices in public spaces
-- Security research with proper authorization
-- Network diagnostics on your own networks
-- Educational demonstrations
+**Illegal** (18 USC § 2511):
+- Using scanned information to commit a crime
+- Interfering with public safety operations
+- Transmitting on frequencies without authorization
+- Recording cellular phone calls
+- Divulging contents of private communications
 
-❌ **Prohibited Uses:**
-- Evading law enforcement
-- Unauthorized surveillance or tracking
-- Interfering with public safety systems
-- Violating privacy laws
-- Any malicious or illegal activities
+**State Laws Vary**:
+- Some states restrict mobile use of scanners in vehicles
+- Commercial use may require additional licensing
+- Check your local regulations
 
-### Privacy & Laws
-- Passive scanning (monitoring broadcasts) is generally legal
-- Device identification based on public broadcasts is legal
-- **Check local laws** regarding wireless monitoring in your jurisdiction
-- Do not use to track individuals without consent
-- Respect privacy and use responsibly
-
-### Responsible Use
-- This tool only passively receives broadcast signals
-- It does not connect to, hack, or interfere with devices
-- Similar to WiFi analyzer apps available on smartphones
-- Use for awareness, not evasion or harassment
-
-**By using this code, you agree to use it legally and ethically.**
+**Bottom Line**: This tool is for **educational and awareness purposes**. The HackRF is **receive-only** in this application and poses no interference to public safety operations.
 
 ## Technical Details
 
-### Scanning Methods
+### Scanning Performance
 
-**WiFi Scanning:**
-- Uses ESP32 WiFi radio in station mode
-- Scans 2.4GHz channels 1-13
-- Detects Access Points and some client devices
-- Passive scanning (no association)
+- **Scan Rate**: ~20-50 frequencies per second (depends on dwell time)
+- **Frequency Resolution**: 25 kHz steps (configurable to 12.5 kHz)
+- **RSSI Range**: -120 to -30 dBm
+- **Detection Latency**: 50-150ms per frequency
+- **Memory Usage**: ~50KB (detection storage)
+- **SD Card**: Required for logging
 
-**Bluetooth Scanning:**
-- BLE (Bluetooth Low Energy) advertisement scanning
-- Detects beacons, peripherals, and connectable devices
-- Active scanning requests scan response packets
-- Classic Bluetooth not scanned (BLE only)
+### Frequency Tolerance
 
-### Device Identification Logic
+The scanner matches frequencies within **±25 kHz** of known entries to account for:
+- Frequency drift in older equipment
+- Adjacent channel detection
+- Scanner tuning accuracy
 
-1. **MAC Address Lookup**: First 3 bytes (OUI) checked against vendor database
-2. **Name Pattern Matching**: Device name/SSID checked for keywords
-3. **Signal Characteristics**: RSSI patterns and broadcast intervals
-4. **Combined Analysis**: Multiple factors weighted for classification
+### Database Coverage
 
-### Limitations
+| Category | Entries | Priority |
+|----------|---------|----------|
+| Law Enforcement | 80+ | High |
+| Fire & EMS | 30+ | High |
+| Federal Agencies | 20+ | High |
+| Trunked Systems | 50+ | Medium |
+| Transportation | 15+ | Medium |
+| Airports | 10+ | Medium |
+| Surveillance | 15+ | Medium |
+| Schools | 10+ | Low |
 
-- **2.4GHz Only**: Does not scan 5GHz WiFi networks
-- **BLE Only**: Classic Bluetooth (BR/EDR) not scanned
-- **Passive Only**: Cannot decrypt encrypted communications
-- **Range Limited**: Typical range 10-100 meters depending on environment
-- **Distance Estimation**: Approximate only, affected by many factors
-- **Hidden SSIDs**: WiFi networks with hidden SSID show as blank
-- **Randomized MACs**: Some devices use random MAC addresses
+**Total**: 300+ frequencies across 11 categories
 
-## Future Enhancements
+## Advanced Features
 
-Potential additions (contributions welcome):
-- [ ] OLED/LCD display support
-- [ ] SD card logging
-- [ ] GPS integration for location tracking
-- [ ] Web interface for remote monitoring
-- [ ] 5GHz WiFi scanning (on compatible boards)
-- [ ] Classic Bluetooth scanning
-- [ ] Machine learning for device classification
-- [ ] Mobile app companion
-- [ ] Multi-device mesh networking
-- [ ] Historical analysis and patterns
+### Signal History Tracking
 
-## Contributing
+The app maintains history for up to 100 unique signals:
+- **RSSI History**: Last 10 measurements per frequency
+- **Detection Count**: Total times signal was detected
+- **Last Seen**: Timestamp of most recent detection
+- **Trend Analysis**: Identify persistent vs. transient signals
 
-Contributions are welcome! Areas for improvement:
-- Additional device patterns and MAC vendor database
-- Better distance estimation algorithms
-- Power optimization
-- Display interface implementations
-- Documentation improvements
+### Trunked Radio Detection
+
+For trunked systems (800 MHz, LA-RICS):
+- Detects **control channels** (coordination frequencies)
+- Identifies trunked system type
+- Higher confidence for known control channel frequencies
+
+### FirstNet LTE Detection
+
+FirstNet (Band 14, 700 MHz) uses LTE technology:
+- Detects broadband public safety network activity
+- Separate uplink (773-776 MHz) and downlink (758-761 MHz) tracking
+- Requires higher RSSI threshold due to spread spectrum
+
+## Troubleshooting
+
+### No Detections
+
+**Possible Causes:**
+1. RSSI threshold too high → Lower to -90 or -100 dBm
+2. Wrong band selected → Try Full Scan mode
+3. No activity in area → Normal, wait for activity
+4. Antenna issue → Check antenna connection
+5. Interference → Move to different location
+
+### Too Many False Detections
+
+**Solutions:**
+1. Increase RSSI threshold to -70 or -60 dBm
+2. Use specific band instead of Full Scan
+3. Increase minimum detections (requires code change)
+4. Move away from sources of interference (Wi-Fi, cellular)
+
+### Weak Signals
+
+**Improvements:**
+1. Use higher-gain antenna
+2. Raise antenna position (higher = better)
+3. Move to open area (avoid buildings)
+4. Scan during active periods (weekday daytime for business, evening for patrols)
+
+### Battery Life
+
+- **Active Scanning**: ~2-4 hours on battery
+- **Recommendations**: Use USB power bank, Reduce LCD brightness, Disable unused peripherals
+
+## Development
+
+### Customization
+
+To add custom frequencies, edit `freq_database.hpp`:
+
+```cpp
+// Add to appropriate array
+static const FreqEntry freq_db_custom[] = {
+    {162550000, "NOAA", "Weather Radio", 3},
+    {156800000, "Marine", "VHF Channel 16", 4},
+    // ... more entries
+};
+```
+
+### Future Enhancements
+
+- [ ] Audio demodulation (AM/FM/NFM)
+- [ ] Waterfall display
+- [ ] GPS logging integration
+- [ ] Bluetooth alert forwarding
+- [ ] Trunked radio following
+- [ ] P25 decoding (if legal in your jurisdiction)
+- [ ] Signal recording
+- [ ] Web interface for configuration
+
+## Credits
+
+**Inspired by**: ESP32 Wireless Device Scanner project
+
+**Built for**: HackRF PortaPack Mayhem firmware
+
+**Frequency Data**: Compiled from public sources including:
+- RadioReference.com
+- FCC database
+- Local public safety publications
+- Ham radio frequency coordinators
+
+## Disclaimer
+
+This application is provided for **educational and research purposes only**.
+
+**The authors and contributors:**
+- Do NOT encourage illegal use of this software
+- Are NOT responsible for misuse of this application
+- Do NOT condone interference with public safety operations
+- Are NOT liable for any consequences of use
+
+**Users are solely responsible** for complying with all applicable federal, state, and local laws regarding RF monitoring.
+
+**When in doubt, don't**. If you're not sure if something is legal, consult a lawyer.
 
 ## License
 
-This project is provided as-is for educational purposes. Use responsibly and legally.
+This project is licensed under the **GNU General Public License v2.0** (GPL-2.0), consistent with PortaPack Mayhem firmware.
 
-## Acknowledgments
-
-- Built with ESP32 Arduino Core
-- Uses Espressif BLE libraries
-- MAC vendor database from IEEE OUI registry
+See LICENSE file for details.
 
 ## Support
 
-For issues, questions, or contributions:
-- Check the troubleshooting section
-- Review ESP32 Arduino documentation
-- Ensure hardware connections are correct
-- Test with known devices first
-
-## Version History
-
-- **v3.0** - Live Distance Tracker with real-time movement detection, velocity calculation, and distance prediction
-- **v2.0** - Enhanced version with alerts, vendor lookup, device tracking
-- **v1.0** - Basic WiFi and BLE scanning
+- **Issues**: Report bugs via GitHub Issues
+- **Discussions**: Join PortaPack Discord community
+- **Updates**: Watch this repository for new frequency additions
 
 ---
 
-**Remember**: Use this tool responsibly and legally. It's designed for awareness and education, not for evading law enforcement or violating privacy.
+**Version**: 1.0.0
+**Last Updated**: January 2024
+**Compatibility**: PortaPack Mayhem (latest)
+
+**Stay safe. Stay legal. Stay curious.**

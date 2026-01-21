@@ -1,168 +1,305 @@
-# Quick Start Guide
+# Quick Start Guide - RF Device Scanner
 
-Get your ESP32 Vehicle Tracker running in 10 minutes!
+Get scanning in 5 minutes!
 
-## What You Need
+## Prerequisites
 
-✅ ESP32 board
-✅ USB cable
-✅ Computer with Arduino IDE
+- HackRF One + PortaPack (H1, H2, H2M4, or H4M)
+- PortaPack Mayhem firmware installed
+- SD card inserted
+- Antenna connected
+- Battery or USB power
 
-That's it! LEDs and buzzer are optional.
+## Installation
 
-## 5-Minute Setup
+### Option 1: Use Pre-Built Firmware (Recommended)
 
-### 1. Install Arduino IDE
-Download from [arduino.cc](https://www.arduino.cc/en/software)
+1. Download the latest firmware from Releases
+2. Copy `portapack-mayhem.bin` to SD card root
+3. Power off PortaPack
+4. Power on while holding DFU button (or use bootloader)
+5. Select firmware update
+6. Wait for flash to complete
+7. Reboot
 
-### 2. Add ESP32 Support
-- Open Arduino IDE
-- File → Preferences
-- Add this URL to "Additional Board Manager URLs":
-  ```
-  https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-  ```
-- Tools → Board → Boards Manager
-- Search "ESP32" and install
+### Option 2: Build from Source
 
-### 3. Upload Code
-- Connect ESP32 via USB
-- Open `vehicle_tracker_enhanced.ino`
-- Tools → Board → ESP32 Dev Module
-- Tools → Port → (select your port)
-- Click Upload ⬆️
+```bash
+# Clone this repo
+git clone https://github.com/yourusername/hackrf-portapack-rfscanner.git
+cd hackrf-portapack-rfscanner
 
-### 4. Watch the Magic
-- Tools → Serial Monitor
-- Set baud rate to **115200**
-- Watch devices appear!
+# Clone PortaPack Mayhem
+git clone https://github.com/eried/portapack-mayhem.git
 
-## What You'll See
+# Copy files
+cp rf_scanner.* portapack-mayhem/firmware/application/
+cp freq_database.hpp portapack-mayhem/firmware/application/
 
-```
-╔════════════════════════════════════════════╗
-║   ESP32 Wireless Device Scanner v2.0      ║
-╚════════════════════════════════════════════╝
-
-[WiFi DEVICE DETECTED]
-Name: NETGEAR-5G
-Type: ROUTER
-RSSI: -65 dBm (MODERATE)
-Est. Distance: ~25 meters
-
-[BLE DEVICE DETECTED]
-Name: John's iPhone
-Type: SMARTPHONE
-RSSI: -45 dBm (VERY_STRONG)
-Est. Distance: ~5 meters
+# Build (requires Docker or ARM toolchain)
+cd portapack-mayhem
+docker run --rm -v $(pwd):/havoc portapack-dev
 ```
 
-## Customization
+## First Scan - Step by Step
 
-Want to change what triggers alerts? Edit these lines in the code:
+### Step 1: Launch App
 
-```cpp
-#define ALERT_ON_EMERGENCY_VEHICLE true  // Police cars, ambulances
-#define ALERT_ON_CAMERA true             // Cameras
-#define ALERT_ON_BODYCAM true            // Body cameras
-#define ALERT_ON_TRAFFIC_MONITOR true    // Traffic sensors
+1. Power on PortaPack
+2. Tap **Apps** (toolbox icon)
+3. Scroll to **RF Scanner**
+4. Tap to launch
+
+### Step 2: Configure Scan
+
+**For beginners, use these settings:**
+
+```
+Band: Full Scan
+Threshold: -80 dBm
 ```
 
-Set to `false` to disable specific alerts.
+This will scan all frequencies and detect strong signals.
+
+### Step 3: Start Scanning
+
+1. Tap **START** button
+2. Watch the frequency display update
+3. Console will show detections as they occur
+
+### Step 4: Interpret Results
+
+When a signal is detected, you'll see:
+
+```
+Last Device: LAPD
+Description: Main Dispatch
+Detections: 1
+```
+
+The console shows a running log:
+```
+> LAPD @ 154.57 MHz
+> LAFD @ 154.28 MHz
+```
+
+### Step 5: Save Results (Optional)
+
+1. Tap **STOP** to pause scanning
+2. Tap **SAVE** to write log to SD card
+3. File saved to `/RFSCANS/RFSCN_DATE_TIME.TXT`
+
+## Common Scenarios
+
+### Scenario 1: Monitor Police Activity
+
+**Goal**: Detect nearby police radio activity
+
+**Settings:**
+- Band: **VHF Low** (150-174 MHz)
+- Threshold: **-70 dBm**
+
+**Expected Results:**
+- LAPD, LASD, CHP dispatch channels
+- Strong signals within 1 km
+- Weak signals up to 3 km
+
+**What to look for:**
+- Frequent detections = active patrols nearby
+- SWAT/Tactical frequencies = special operations
+- Air Support = helicopter activity
+
+### Scenario 2: Emergency Services Monitoring
+
+**Goal**: Monitor fire and EMS during emergency
+
+**Settings:**
+- Band: **VHF Low** (150-174 MHz)
+- Threshold: **-80 dBm**
+
+**Expected Results:**
+- LAFD dispatch and tactical channels
+- EMS/Ambulance frequencies
+- Hospital link frequencies
+
+**What to look for:**
+- Multiple channels active = large incident
+- CalFire frequencies = wildfire response
+
+### Scenario 3: Highway Patrol Detection
+
+**Goal**: Detect CHP activity on freeways
+
+**Settings:**
+- Band: **VHF Low** (150-174 MHz)
+- Threshold: **-75 dBm**
+
+**Expected Results:**
+- CHP operates on 42 MHz band
+- Detections increase near freeway
+- Air ops indicate aircraft enforcement
+
+### Scenario 4: Federal Agency Detection
+
+**Goal**: Detect FBI, DEA, or other federal activity
+
+**Settings:**
+- Band: **VHF High** (174-216 MHz)
+- Threshold: **-70 dBm**
+
+**Expected Results:**
+- FBI, DEA, ATF, Secret Service frequencies
+- Often encrypted or intermittent
+- Higher confidence when detected
+
+### Scenario 5: Trunked Radio Systems
+
+**Goal**: Detect modern trunked public safety systems
+
+**Settings:**
+- Band: **800 MHz** (806-869 MHz)
+- Threshold: **-60 dBm**
+
+**Expected Results:**
+- Control channel detections
+- LA-RICS system identification
+- Strong signals required (nearby towers)
+
+## Tips for Better Results
+
+### Antenna Positioning
+
+- **Height matters**: Raise antenna as high as possible
+- **Line of sight**: Outdoor scanning works best
+- **Avoid metal**: Stay away from metal structures that block signals
+- **Orientation**: Vertical for VHF/UHF
+
+### Timing
+
+**Best times to scan:**
+- **Weekday mornings (7-9 AM)**: Rush hour, high patrol activity
+- **Weekday evenings (5-8 PM)**: Rush hour, shift changes
+- **Weekend nights**: Increased DUI patrols
+- **Special events**: Concerts, sports, protests
+
+**Worst times:**
+- **Late night (2-6 AM)**: Minimal activity
+- **Early Sunday mornings**: Lowest traffic
+
+### Location
+
+**Best locations:**
+- **Hills/elevated areas**: Better line of sight
+- **Near freeways**: CHP activity
+- **Near airports**: Airport police, fire
+- **Downtown**: Multiple agencies active
+- **Near government buildings**: Federal agencies
+
+**Avoid:**
+- **Basements/underground**: Poor signal reception
+- **Dense urban canyons**: Buildings block signals
+- **Near strong RF sources**: Interference from Wi-Fi, cellular towers
+
+## Understanding the Display
+
+### Main Screen
+
+```
+Frequency: 154.570 MHz     ← Current scanning frequency
+RSSI: -65 dBm              ← Signal strength
+[=====RSSI METER=====]     ← Visual signal strength
+Detections: 12             ← Total detections this session
+Last Device: LAPD          ← Most recent detection
+Main Dispatch              ← Description
+```
+
+### RSSI Meter
+
+```
+[===                ]  -90 dBm (Weak - far away)
+[========           ]  -75 dBm (Medium - moderate distance)
+[==============     ]  -60 dBm (Strong - nearby)
+[===================]  -45 dBm (Very strong - very close)
+```
+
+### Console Output
+
+Real-time log of all detections:
+
+```
+> LAPD @ 154.57 MHz        ← Detection 1
+> LAFD @ 154.28 MHz        ← Detection 2
+> CHP @ 42.34 MHz          ← Detection 3
+```
+
+Scroll with encoder to view history.
 
 ## Troubleshooting
 
-**No devices showing up?**
-- Move to area with more WiFi/Bluetooth devices
-- Lower the RSSI threshold: `#define RSSI_THRESHOLD -95`
+### Problem: No Detections
 
-**Can't upload code?**
-- Check USB cable (must support data)
-- Select correct COM port
-- Press BOOT button during upload
+**Solution checklist:**
+- [ ] Check antenna is connected
+- [ ] Lower threshold to -90 or -100 dBm
+- [ ] Try Full Scan mode
+- [ ] Move to outdoor location
+- [ ] Wait 2-3 minutes (activity may be low)
+- [ ] Try different time of day
 
-**Compilation error?**
-- Make sure ESP32 board package is installed
-- Restart Arduino IDE
+### Problem: Too Many Detections
+
+**Solution:**
+- Increase threshold to -65 or -60 dBm
+- Use specific band (not Full Scan)
+- Move away from interference sources
+
+### Problem: Scanning Stops
+
+**Solution:**
+- Check battery level
+- Ensure SD card is inserted
+- Restart PortaPack
+- Reflash firmware if persists
+
+### Problem: Weak Signals
+
+**Solution:**
+- Use better antenna (high-gain VHF/UHF)
+- Raise antenna higher
+- Move to elevated location
+- Scan during active hours
 
 ## Next Steps
 
-- Read [README.md](README.md) for full documentation
-- Check [WIRING.md](WIRING.md) to add LEDs and buzzer
-- Explore [examples/basic_scanner.ino](examples/basic_scanner.ino) for simpler version
+Once you're comfortable with basic scanning:
 
-## Using It
-
-### Portable Mode
-1. Disconnect from computer
-2. Power with USB battery pack
-3. Built-in LED will blink when devices detected
-4. Connect to laptop occasionally to view logs
-
-### Desktop Mode
-1. Keep connected to computer
-2. Serial Monitor shows real-time detections
-3. Best for learning and testing
-
-## Tips
-
-💡 **Best range**: Elevate the ESP32 for line-of-sight
-💡 **Battery life**: Use power bank for 4-8 hours runtime
-💡 **Stealthy**: Use minimal version without buzzer
-💡 **Learning**: Start with basic_scanner.ino first
-
-## Understanding Results
-
-### Signal Strength
-- **VERY_STRONG** (-30 to -50 dBm): Device is very close (< 10m)
-- **STRONG** (-50 to -60 dBm): Device nearby (10-30m)
-- **MODERATE** (-60 to -70 dBm): Medium distance (30-50m)
-- **WEAK** (-70 to -80 dBm): Far away (50-100m)
-- **VERY_WEAK** (-80 to -90 dBm): Very far (100m+)
-
-### Device Types
-Scanner can identify:
-- 🚓 Emergency vehicles (police, fire, ambulance)
-- 📷 Cameras (surveillance, IP cameras)
-- 🚗 Vehicle systems (CarPlay, Bluetooth)
-- 📱 Smartphones and tablets
-- 💻 Computers and laptops
-- 🎧 Headphones and speakers
-- And many more!
+1. **Experiment with bands**: Try each band individually
+2. **Adjust threshold**: Find optimal settings for your area
+3. **Save logs**: Build a database of local frequencies
+4. **Learn patterns**: Identify regular patrol patterns
+5. **Explore advanced**: Research trunked systems, P25, etc.
 
 ## Safety & Legal
 
-⚠️ **Use Responsibly**
-- Educational purposes only
-- Passive scanning is generally legal
-- Do NOT use to evade law enforcement
-- Respect privacy laws
-- Check local regulations
+**Remember:**
+- **LISTEN ONLY** - Never transmit on these frequencies
+- **Don't interfere** with emergency operations
+- **Don't use for illegal purposes**
+- **Check local laws** regarding scanner use in vehicles
 
-This tool only listens to public wireless broadcasts - just like a WiFi analyzer app on your phone.
+## Resources
+
+- **RadioReference.com**: Frequency database lookup
+- **PortaPack Discord**: Community support
+- **HackRF Wiki**: Technical documentation
+- **FCC Database**: Official frequency allocations
 
 ## Support
 
-Having issues?
-1. Check the troubleshooting section above
-2. Read [README.md](README.md) for detailed docs
-3. Verify your wiring with [WIRING.md](WIRING.md)
-4. Make sure you're using a real ESP32 board
-
-## Code Versions
-
-Choose the right version for you:
-
-| File | Best For | Features |
-|------|----------|----------|
-| `vehicle_tracker_enhanced.ino` | Most users | Full features, alerts, tracking |
-| `vehicle_tracker.ino` | Simple use | Basic scanning, no alerts |
-| `examples/basic_scanner.ino` | Learning | Minimal code, easy to understand |
-
-Start with enhanced version - it's the most complete!
+- **GitHub Issues**: Report bugs
+- **Discord**: Community help
+- **Email**: support@example.com
 
 ---
 
-**You're all set!** 🎉
-
-The scanner is now running. Walk around and watch it detect devices. Have fun learning about the wireless world around you!
+**Happy scanning! Stay safe, stay legal, stay curious.**
